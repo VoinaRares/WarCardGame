@@ -25,14 +25,15 @@ public class GameController {
         deck.shuffle();
         List<Card> fullDeck = deck.getDeck();
         int cardsPerPlayer = fullDeck.size() / playerCount;
+        int remainingCards = fullDeck.size() % playerCount;
 
         for (int i = 0; i < playerCount; i++) {
             int start = i * cardsPerPlayer;
-            int end = start + cardsPerPlayer;
+            int end = start + cardsPerPlayer + (i < remainingCards ? 1 : 0);
             List<Card> subList = fullDeck.subList(start, end);
             ArrayList<Card> cardsForPlayer = new ArrayList<>(subList);
 
-            Player player = new Player(cardsForPlayer);
+            Player player = new Player(i + 1, cardsForPlayer);
             players.add(player);
         }
     }
@@ -50,6 +51,10 @@ public class GameController {
                 gameOver = true;
                 winnerId = players.get(0).getId();
                 System.out.println("Player " + winnerId + " wins the game!");
+            } else if (players.size() == 0) {
+                gameOver = true;
+                winnerId = -1;
+                System.out.println("No winner! All players eliminated.");
             }
 
             validateTotalCardCount();
@@ -63,8 +68,8 @@ public class GameController {
         List<Card> currentCards = new ArrayList<>();
         int maxRank = -1;
         List<Player> tiedPlayers = new ArrayList<>();
-
-        for (Player player : players) {
+        List<Player> activePlayers = new ArrayList<>(players);
+        for (Player player : activePlayers) {
             if (!player.getPlayerHand().isEmpty()) {
                 Card card = player.getTopCard();
                 currentCards.add(card);
@@ -94,7 +99,6 @@ public class GameController {
         List<Player> playersStillInTie = new ArrayList<>();
         for (Player player : tiedPlayers) {
             if (player.getPlayerHand().size() < tiedRank) {
-                // Player cannot continue tie-break, add all their cards to table and remove player
                 while (!player.getPlayerHand().isEmpty()) {
                     cardsOnTable.add(player.getTopCard());
                 }
@@ -104,7 +108,9 @@ public class GameController {
         }
 
         if (playersStillInTie.isEmpty()) {
-            tiedPlayers.get(0).addCards(cardsOnTable);
+            if (!tiedPlayers.isEmpty()) {
+                tiedPlayers.get(0).addCards(cardsOnTable);
+            }
             return;
         }
 
@@ -132,6 +138,10 @@ public class GameController {
             tieBreaker(cardsOnTable, maxRank, newTiedPlayers);
         } else if (newTiedPlayers.size() == 1) {
             newTiedPlayers.get(0).addCards(cardsOnTable);
+        } else {
+            if (!playersStillInTie.isEmpty()) {
+                playersStillInTie.get(0).addCards(cardsOnTable);
+            }
         }
     }
 

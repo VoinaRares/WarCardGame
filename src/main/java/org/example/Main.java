@@ -4,7 +4,7 @@ import Controller.GameController;
 
 public class Main {
     public static void main(String[] args) {
-        int playerCount = 2;
+        int playerCount = 3;
 
         GameController gameController = new GameController(playerCount);
         int winner = gameController.playGame();

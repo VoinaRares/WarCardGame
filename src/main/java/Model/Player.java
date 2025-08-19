@@ -12,6 +12,10 @@ public class Player {
         this.id = (int)Math.floor(Math.random()*10);
     }
 
+    public Player(int id, ArrayList<Card> cards) {
+        this.id = id; // Set the ID explicitly
+        this.playerHand = new PlayerHand(cards);
+    }
     public Player(ArrayList<Card> cards) {
         this.id = (int)Math.floor(Math.random()*10);
         this.playerHand = new PlayerHand(cards);
